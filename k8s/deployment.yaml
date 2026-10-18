@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xpro-oss
+  namespace: default
+  labels:
+    app: xpro-oss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xpro-oss
+  template:
+    metadata:
+      labels:
+        app: xpro-oss
+    spec:
+      containers:
+        - name: xpro-oss
+          image: <your-registry>/xpro-oss:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: xpro-oss-db
+                  key: password
+          volumeMounts:
+            - name: config
+              mountPath: /config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: data
+              mountPath: /data/in
+              readOnly: true
+            # Optional: only needed if source.sftp.destination is set —
+            # BTP service bindings projected by the SAP BTP Service Operator.
+            # - name: connectivity-binding
+            #   mountPath: /bindings/connectivity
+            #   readOnly: true
+            # - name: destination-binding
+            #   mountPath: /bindings/destination
+            #   readOnly: true
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+            name: xpro-oss-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: xpro-oss-data
+        # - name: connectivity-binding
+        #   secret:
+        #     secretName: connectivity-binding
+        # - name: destination-binding
+        #   secret:
+        #     secretName: destination-binding

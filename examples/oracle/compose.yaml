@@ -1,0 +1,50 @@
+# xpro-oss + Oracle Database Free 23ai — turn-key.   docker compose up -d
+# First start of the database takes ~1-2 minutes.
+# Trigger a run:   curl -X POST localhost:${XPRO_PORT:-8080}/process?wait=true
+name: xpro-oracle
+
+x-xpro: &xpro
+  image: ${XPRO_IMAGE:-ghcr.io/bluefunda/xpro-oss:latest}
+  environment:
+    DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+
+services:
+  db:
+    image: gvenzl/oracle-free:23-slim-faststart
+    restart: unless-stopped
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_ADMIN_PASSWORD:?set ORACLE_ADMIN_PASSWORD in .env}
+      APP_USER: xpro                     # created in the FREEPDB1 pluggable database
+      APP_USER_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+    volumes:
+      - oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  migrate:
+    <<: *xpro
+    entrypoint: ["/migrate", "/schema.sql"]
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ./schema.sql:/schema.sql:ro
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  xpro-oss:
+    <<: *xpro
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${XPRO_PORT:-8080}:8080"   # /process and /status are unauthenticated: keep local
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ../data:/data/in:ro
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  oradata:

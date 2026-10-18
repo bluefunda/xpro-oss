@@ -1,0 +1,14 @@
+name: Go Review
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  go-review:
+    uses: bluefunda/.github/.github/workflows/go-review.yml@main
+    with:
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

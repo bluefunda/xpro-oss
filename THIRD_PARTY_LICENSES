@@ -1,0 +1,113 @@
+================================================================================
+THIRD-PARTY SOFTWARE LICENSES
+================================================================================
+
+xpro-oss includes the following third-party open source software components in its
+binary and container image. Each component is subject to its respective license terms.
+xpro-oss itself is licensed under the Apache License 2.0 (see LICENSE).
+
+================================================================================
+Go Standard Library
+================================================================================
+Copyright (c) 2009 The Go Authors. All rights reserved.
+License: BSD-3-Clause
+https://go.dev/LICENSE
+
+================================================================================
+github.com/SAP/go-hdb
+================================================================================
+Copyright (c) 2014-2026 SAP SE or an SAP affiliate company and go-hdb contributors
+License: Apache-2.0
+https://github.com/SAP/go-hdb/blob/main/LICENSE.md
+
+================================================================================
+github.com/lib/pq
+================================================================================
+Copyright (c) 2011-2013, 'pq' Contributors; portions 2011 Blake Mizerany
+License: MIT
+https://github.com/lib/pq/blob/master/LICENSE
+
+================================================================================
+github.com/sijms/go-ora/v2
+================================================================================
+Copyright (c) 2020 Samy Sultan
+License: MIT
+https://github.com/sijms/go-ora/blob/master/LICENSE
+
+================================================================================
+github.com/pkg/sftp
+================================================================================
+Copyright (c) 2013, Dave Cheney <dave@cheney.net>
+License: BSD-2-Clause
+https://github.com/pkg/sftp/blob/master/LICENSE
+
+================================================================================
+github.com/kr/fs
+================================================================================
+Copyright (c) 2012 The Go Authors. All rights reserved.
+License: BSD-3-Clause
+https://github.com/kr/fs/blob/main/LICENSE
+
+================================================================================
+golang.org/x/crypto
+================================================================================
+Copyright (c) 2009 The Go Authors
+License: BSD-3-Clause
+https://cs.opensource.google/go/x/crypto/+/master:LICENSE
+
+================================================================================
+golang.org/x/net
+================================================================================
+Copyright (c) 2009 The Go Authors
+License: BSD-3-Clause
+https://cs.opensource.google/go/x/net/+/master:LICENSE
+
+================================================================================
+golang.org/x/text
+================================================================================
+Copyright (c) 2009 The Go Authors
+License: BSD-3-Clause
+https://cs.opensource.google/go/x/text/+/master:LICENSE
+
+================================================================================
+gopkg.in/xmlpath.v2
+================================================================================
+Copyright (c) 2013-2014 Canonical Inc.
+License: LGPL-3.0 with static/dynamic-linking exception (see note below)
+https://github.com/go-xmlpath/xmlpath/blob/v2/LICENSE
+
+================================================================================
+gopkg.in/yaml.v3
+================================================================================
+Copyright (c) 2011-2016 Canonical Ltd.; portions 2006-2010 Kirill Simonov (libyaml)
+License: MIT and Apache-2.0
+https://github.com/go-yaml/yaml/blob/v3/LICENSE
+
+================================================================================
+github.com/bluefunda/btp-go/{binding,connectivity,destination,sshclient,xsuaa}
+================================================================================
+Copyright 2024 BlueFunda
+License: Apache-2.0
+https://github.com/bluefunda/btp-go/blob/main/LICENSE
+
+================================================================================
+NOTE ON gopkg.in/xmlpath.v2
+================================================================================
+xmlpath is licensed under the GNU Lesser General Public License v3 with a special
+exception: the copyright holders permit conveying a Combined Work that links
+statically or dynamically to the library without providing Minimal Corresponding
+Source or Minimal Application Code, provided the other provisions of the LGPL-3.0
+are met (including keeping its copyright and license notices and not restricting
+modification of the library or reverse engineering for debugging such modifications).
+The full text is in licenses/xmlpath-LICENSE. This file and that one are copied
+into the container image under /licenses/.
+
+================================================================================
+NOTES
+================================================================================
+* Only modules that are compiled into the xpro-oss and migrate binaries are listed.
+  Test-only and build-only tools are excluded.
+* The example Docker Compose stacks pull third-party images (PostgreSQL, Oracle
+  Database Free, SAP HANA express, Alpine). Those are not part of the xpro-oss image,
+  carry their own licenses, and are accepted by whoever runs them. See docs/RUNNING.md.
+* For complete license texts, see the project repositories listed above.

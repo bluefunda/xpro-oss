@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xpro-oss-config
+  namespace: default
+data:
+  config.yaml: |
+    source:
+      type: local
+      path: "/data/in"
+    target:
+      db: postgres
+      table: "public.records"
+      host: "postgres"
+      port: 5432
+      user: "xpro"
+      password: "${DB_PASSWORD}"
+      database: "xpro"
+      schema: "public"
+      sslmode: "require"
+    workers: 8
+    mapping:
+      - column: account_number
+        xpath: "/Root/Account/Number"
+      - column: amount
+        xpath: "/Root/Billing/Amount"
+      - column: raw_xml
+        xpath: ""

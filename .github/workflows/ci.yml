@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: bluefunda/.github/.github/workflows/go-ci.yml@main
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+    with:
+      build-command: 'go build ./...'
+      test-command: 'go test -race ./...'
+      # goprivate: github.com/bluefunda/*  # uncomment if btp-go is private

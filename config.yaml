@@ -1,0 +1,55 @@
+# xpro-oss example configuration.
+#
+# xpro-oss has no built-in knowledge of any particular XML schema — every
+# field below is generic and driven entirely by this file. Point `mapping`
+# at whatever XPath expressions match your XML shape, and `target` at
+# whatever table you want the mapped columns written to.
+
+source:
+  type: local              # "local" or "sftp"
+  path: "./data/in"        # local: directory to read from; sftp: remote directory
+
+  # sftp (only used when type: sftp):
+  sftp:
+    # Direct connection — works on AWS, GCP, bare metal, no BTP required:
+    host: ""
+    port: "22"
+    user: ""
+    password: "${SFTP_PASSWORD}"
+    privateKeyPath: ""
+    knownHosts: ""           # path to an OpenSSH known_hosts file; empty = host keys NOT verified (warns)
+
+    # OR resolve credentials from a SAP BTP Destination Service entry,
+    # tunneled through the BTP Connectivity SOCKS5 proxy. Only takes effect
+    # when a BTP Connectivity + Destination binding is present in the
+    # runtime environment (VCAP_SERVICES on Cloud Foundry, or a
+    # SERVICE_BINDING_ROOT-mounted binding on Kyma):
+    # destination: "MY_SFTP_DESTINATION"
+
+target:
+  db: postgres              # "postgres" (default), "oracle" or "hana" — all pure Go, no CGO
+  table: "public.records"
+  batchSize: 0               # 0 = DB-aware default (500 postgres / 150 oracle / 500 hana)
+  # destination: "MY_DB_DESTINATION"   # Oracle and HANA only: resolve via SAP BTP Destination
+  #                                      # Service instead of the fields below
+  host: "localhost"
+  port: 5432
+  user: "xpro"
+  password: "${DB_PASSWORD}"
+  database: "xpro"          # postgres: db name; oracle: service name; hana: tenant DB (optional on HANA Cloud)
+  schema: "public"
+  sslmode: "disable"        # use "require" (or stronger) outside local dev.
+                            # hana: "require" (default), "skip-verify" or "disable"; port defaults to 443 (HANA Cloud)
+
+workers: 8                  # bounded worker pool size for concurrent batch inserts
+
+# mapping drives both the XPath extraction from each XML file AND the target
+# column list/order for the INSERT statement. An empty xpath stores the
+# entire raw file content in that column (handy for an audit/raw-XML column).
+mapping:
+  - column: account_number
+    xpath: "/Root/Account/Number"
+  - column: amount
+    xpath: "/Root/Billing/Amount"
+  - column: raw_xml
+    xpath: ""

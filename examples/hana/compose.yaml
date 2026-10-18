@@ -1,0 +1,83 @@
+# xpro-oss + SAP HANA, express edition — turn-key.   docker compose up -d
+#
+# Host prerequisites (see ../../docs/HANA_DOCKER.md): >= 16 GB free RAM, the
+# kernel parameters in hana-sysctl.conf applied on the HOST, and a rootful
+# Docker daemon (rootless Docker cannot set the container sysctls below).
+# First start takes ~3 minutes. Using the HANA express image means accepting
+# SAP's license (see --agree-to-sap-license below).
+# Trigger a run:   curl -X POST localhost:${XPRO_PORT:-8080}/process?wait=true
+name: xpro-hana
+
+x-xpro: &xpro
+  image: ${XPRO_IMAGE:-ghcr.io/bluefunda/xpro-oss:latest}
+  environment:
+    DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+
+services:
+  # One-shot: writes HANA's master-password file into the data volume on
+  # first start (owner 12000:79 = hxeadm:sapsys). HANA deletes it after use.
+  hana-init:
+    image: alpine:3
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+    volumes:
+      - hanadata:/hana/mounts
+    command:
+      - sh
+      - -c
+      - |
+        # skip once HANA has initialised the volume (the image's own data/ dir is
+        # copied into a fresh volume, so it is not a usable marker)
+        [ -e /hana/mounts/.content_structure_version ] || {
+          printf '{"master_password" : "%s"}' "$$DB_PASSWORD" > /hana/mounts/password.json
+          chown 12000:79 /hana/mounts /hana/mounts/password.json
+          chmod 600 /hana/mounts/password.json
+        }
+    restart: "no"
+
+  db:
+    image: saplabs/hanaexpress:2.00.088.00.20251110.1
+    restart: unless-stopped
+    depends_on:
+      hana-init: { condition: service_completed_successfully }
+    command: ["--passwords-url", "file:///hana/mounts/password.json", "--agree-to-sap-license"]
+    volumes:
+      - hanadata:/hana/mounts
+    ulimits:
+      nofile: { soft: 1048576, hard: 1048576 }
+    sysctls:
+      kernel.shmmax: 1073741824
+      kernel.shmmni: 32768            # the image docs say 524288; newer kernels reject that
+      kernel.shmall: 8388608
+      net.ipv4.ip_local_port_range: "40000 60999"
+    # The image ships its own HEALTHCHECK; "healthy" means the tenant is up.
+    healthcheck:
+      start_period: 300s
+
+  # One-shot: creates the target table. HANA has no CREATE TABLE IF NOT EXISTS, so
+  # on later `docker compose up` this step exits 1 with "duplicate table name"
+  # (error 288) — expected and harmless, which is why xpro-oss only waits for it
+  # to have started rather than to have succeeded.
+  migrate:
+    <<: *xpro
+    entrypoint: ["/migrate", "/schema.sql"]
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ./schema.sql:/schema.sql:ro
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  xpro-oss:
+    <<: *xpro
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${XPRO_PORT:-8080}:8080"   # /process and /status are unauthenticated: keep local
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ../data:/data/in:ro
+    depends_on:
+      migrate: { condition: service_started }
+
+volumes:
+  hanadata:

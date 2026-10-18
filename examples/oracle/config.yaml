@@ -1,0 +1,24 @@
+# xpro-oss example: local directory -> Oracle Database (Free 23ai).
+source:
+  type: local
+  path: "/data/in"
+
+target:
+  db: oracle
+  table: "RECORDS"
+  batchSize: 100
+  host: "db"
+  port: 1521
+  user: "xpro"
+  password: "${DB_PASSWORD}"
+  database: "FREEPDB1"        # Oracle service name (the pluggable database)
+
+workers: 8                  # concurrent batches; 8-32 is the sweet spot (see docs/BENCHMARKS.md)
+
+mapping:
+  - column: account_number
+    xpath: "/Root/Account/Number"
+  - column: amount
+    xpath: "/Root/Billing/Amount"
+  - column: raw_xml
+    xpath: ""                 # empty xpath = store the whole file

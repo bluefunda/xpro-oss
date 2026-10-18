@@ -1,0 +1,50 @@
+# xpro-oss + PostgreSQL — turn-key.   docker compose up -d
+# Reads *.xml from ../data, inserts them into public.records.
+# Trigger a run:   curl -X POST localhost:${XPRO_PORT:-8080}/process?wait=true
+name: xpro-postgres
+
+x-xpro: &xpro
+  image: ${XPRO_IMAGE:-ghcr.io/bluefunda/xpro-oss:latest}
+  environment:
+    DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+  volumes:
+    - ./config.yaml:/config.yaml:ro
+    - ../data:/data/in:ro
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: xpro
+      POSTGRES_DB: xpro
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env (see .env.example)}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xpro -d xpro"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # One-shot: creates the target table (idempotent) from schema.sql.
+  migrate:
+    <<: *xpro
+    entrypoint: ["/migrate", "/schema.sql"]
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ./schema.sql:/schema.sql:ro
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  xpro-oss:
+    <<: *xpro
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${XPRO_PORT:-8080}:8080"   # /process and /status are unauthenticated: keep local
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata:

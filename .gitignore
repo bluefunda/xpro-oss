@@ -1,0 +1,38 @@
+# Build output
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+/xpro-oss
+/dist/
+/bin/
+
+# Benchmark / local test artifacts
+/xpro-bench
+/xpro-migrate
+/corpus/
+/bench/
+/data/
+*.tar
+*.log
+
+# Test / coverage
+*.coverage
+coverage.out
+go.work
+go.work.sum
+
+# Secrets / local env
+.env
+.envrc
+config.local.yaml
+config.btp-test.yaml
+manifest.btp-test.yml
+secrets.json
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store

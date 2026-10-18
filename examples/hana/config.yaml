@@ -1,0 +1,26 @@
+# xpro-oss example: local directory -> SAP HANA (express edition).
+source:
+  type: local
+  path: "/data/in"
+
+target:
+  db: hana
+  table: "RECORDS"
+  batchSize: 100
+  host: "db"
+  port: 39041                 # tenant SQL port (3<instance>41; instance 90 here)
+  user: "SYSTEM"               # demo only: create a dedicated user for real use
+  password: "${DB_PASSWORD}"
+  database: "HXE"             # tenant database
+  schema: "SYSTEM"
+  sslmode: "disable"          # HANA Cloud: use "require"
+
+workers: 8                  # concurrent batches; 8-32 is the sweet spot (see docs/BENCHMARKS.md)
+
+mapping:
+  - column: account_number
+    xpath: "/Root/Account/Number"
+  - column: amount
+    xpath: "/Root/Billing/Amount"
+  - column: raw_xml
+    xpath: ""                 # empty xpath = store the whole file

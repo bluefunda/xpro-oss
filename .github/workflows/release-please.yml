@@ -1,0 +1,43 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-please:
+    # Explicit so the workflow also works where the default token is read-only.
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: bluefunda/.github/.github/workflows/release-please.yml@main
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+    # with:
+    #   release-type: go   # default
+
+  # On release: build the multi-arch (amd64/arm64) image from ./Dockerfile and push
+  # ghcr.io/bluefunda/xpro-oss:<tag> and :latest. Add `gitops-repo` /
+  # `gitops-compose-path` inputs to also bump the tag in a gitops compose file.
+  deploy:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: bluefunda/.github/.github/workflows/docker-deploy.yml@main
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+
+  release-notes:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    uses: bluefunda/.github/.github/workflows/github-release-notes.yml@main
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}

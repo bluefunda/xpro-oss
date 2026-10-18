@@ -1,0 +1,26 @@
+# xpro-oss example: local directory -> PostgreSQL.
+# ${VAR} references are expanded from the container environment.
+source:
+  type: local
+  path: "/data/in"            # the compose file mounts ../data here
+
+target:
+  db: postgres
+  table: "public.records"
+  batchSize: 100              # 0 = driver default (500); 50-100 uses far less memory
+  host: "db"                  # compose service name
+  port: 5432
+  user: "xpro"
+  password: "${DB_PASSWORD}"
+  database: "xpro"
+  sslmode: "disable"          # use "require" outside a private compose network
+
+workers: 8                  # concurrent batches; 8-32 is the sweet spot (see docs/BENCHMARKS.md)
+
+mapping:
+  - column: account_number
+    xpath: "/Root/Account/Number"
+  - column: amount
+    xpath: "/Root/Billing/Amount"
+  - column: raw_xml
+    xpath: ""                 # empty xpath = store the whole file
