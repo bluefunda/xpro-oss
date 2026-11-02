@@ -3,7 +3,7 @@ module github.com/bluefunda/xpro-oss
 go 1.26.9
 
 require (
-	github.com/SAP/go-hdb v1.19.2
+	github.com/SAP/go-hdb v1.20.2
 	github.com/bluefunda/btp-go/binding v0.2.0
 	github.com/bluefunda/btp-go/connectivity v0.1.3
 	github.com/bluefunda/btp-go/destination v0.3.0

@@ -1,5 +1,5 @@
-github.com/SAP/go-hdb v1.19.2 h1:uX8stqEsQXNaYF+LJdNvBlokaRqcg+pgncaAOLQR87Y=
-github.com/SAP/go-hdb v1.19.2/go.mod h1:DsrQeuuYLdhwIrvGlqrOan9pIfizUxuk/GBROCsigsI=
+github.com/SAP/go-hdb v1.20.2 h1:T7z3WDjmWcRcwTmkaiTah4EmVKxsTdis7CVJ+vWFwn8=
+github.com/SAP/go-hdb v1.20.2/go.mod h1:Zk27BJQAOuX5SxhLPYMgPXra8ifAXU+YIX+dSsqB4Os=
 github.com/bluefunda/btp-go/binding v0.2.0 h1:Mg/53GlhvglsViETzAXWsWCQR+UkPaItasTIGTIHrJw=
 github.com/bluefunda/btp-go/binding v0.2.0/go.mod h1:3Sy2MGMp98G5JGIgw3SDXAI6q9H1k9ygTSHwzMsc5m4=
 github.com/bluefunda/btp-go/connectivity v0.1.3 h1:xfENKpKZcjkKNZ83SYRYTJFgUmZV61pAqgN9lsiERrE=
