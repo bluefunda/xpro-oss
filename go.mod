@@ -10,7 +10,7 @@ require (
 	github.com/bluefunda/btp-go/sshclient v0.2.1
 	github.com/bluefunda/btp-go/xsuaa v0.1.3
 	github.com/lib/pq v1.12.3
-	github.com/pkg/sftp v1.13.11
+	github.com/pkg/sftp v1.13.12
 	github.com/sijms/go-ora/v2 v2.9.0
 	golang.org/x/crypto v0.58.0
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
